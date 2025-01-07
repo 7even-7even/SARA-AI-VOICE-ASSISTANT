@@ -1,0 +1,53 @@
+<html>
+<head>
+<title>naac2.py</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #cf8e6d;}
+.s1 { color: #bcbec4;}
+.s2 { color: #bcbec4;}
+.s3 { color: #7a7e85;}
+.s4 { color: #6aab73;}
+.s5 { color: #2aacb8;}
+</style>
+</head>
+<body bgcolor="#1e1f22">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+naac2.py</font>
+</center></td></tr></table>
+<pre><span class="s0">import </span><span class="s1">pyttsx3</span>
+<span class="s0">import </span><span class="s1">os</span>
+<span class="s0">import </span><span class="s1">time</span>
+
+
+<span class="s0">def </span><span class="s1">welcome_message</span><span class="s2">():</span>
+    <span class="s1">engine </span><span class="s2">= </span><span class="s1">pyttsx3</span><span class="s2">.</span><span class="s1">init</span><span class="s2">()</span>
+
+    <span class="s3"># Change the speech rate (speed)</span>
+    <span class="s1">rate </span><span class="s2">= </span><span class="s1">engine</span><span class="s2">.</span><span class="s1">getProperty</span><span class="s2">(</span><span class="s4">'rate'</span><span class="s2">)  </span><span class="s3"># Get current speed</span>
+    <span class="s3"># print(f&quot;Current voice speed: {rate}&quot;)  # Optional: Print current rate</span>
+    <span class="s1">engine</span><span class="s2">.</span><span class="s1">setProperty</span><span class="s2">(</span><span class="s4">'rate'</span><span class="s2">, </span><span class="s5">150</span><span class="s2">)  </span><span class="s3"># Set new speed (lower = slower, higher = faster)</span>
+
+    <span class="s3"># Change the volume (optional)</span>
+    <span class="s1">volume </span><span class="s2">= </span><span class="s1">engine</span><span class="s2">.</span><span class="s1">getProperty</span><span class="s2">(</span><span class="s4">'volume'</span><span class="s2">)  </span><span class="s3"># Get current volume level (0.0 to 1.0)</span>
+    <span class="s1">engine</span><span class="s2">.</span><span class="s1">setProperty</span><span class="s2">(</span><span class="s4">'volume'</span><span class="s2">, </span><span class="s5">1.0</span><span class="s2">)  </span><span class="s3"># Set volume level (0.0 to 1.0)</span>
+
+    <span class="s3"># engine.say(&quot;! Welcome !&quot;)</span>
+    <span class="s1">engine</span><span class="s2">.</span><span class="s1">say</span><span class="s2">(</span><span class="s4">&quot; welcome ! honorable judges. Please enjoy the presentation.&quot;</span><span class="s2">)</span>
+    <span class="s1">engine</span><span class="s2">.</span><span class="s1">runAndWait</span><span class="s2">()</span>
+
+<span class="s0">if </span><span class="s1">__name__ </span><span class="s2">== </span><span class="s4">'__main__'</span><span class="s2">:</span>
+    <span class="s3"># Wait for a moment to ensure the voice message finishes</span>
+    <span class="s1">time</span><span class="s2">.</span><span class="s1">sleep</span><span class="s2">(</span><span class="s5">1</span><span class="s2">)  </span><span class="s3"># Optional: Adjust this if necessary</span>
+
+    <span class="s3"># Path to your PowerPoint file</span>
+    <span class="s1">ppt_file </span><span class="s2">=</span><span class="s4">&quot;C:</span><span class="s0">\\</span><span class="s4">Users\harsh\OneDrive\Desktop\Display[1].pptx&quot;</span>
+
+    <span class="s3"># Open the PowerPoint presentation in slideshow mode</span>
+    <span class="s1">os</span><span class="s2">.</span><span class="s1">startfile</span><span class="s2">(</span><span class="s1">ppt_file</span><span class="s2">, </span><span class="s4">&quot;show&quot;</span><span class="s2">)</span>
+    <span class="s1">welcome_message</span><span class="s2">()</span>
+    <span class="s3"># &quot;show&quot; opens the file directly in slideshow mode</span></pre>
+</body>
+</html>

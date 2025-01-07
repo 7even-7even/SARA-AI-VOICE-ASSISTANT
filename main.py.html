@@ -1,0 +1,504 @@
+<html>
+<head>
+<title>main.py</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #cf8e6d;}
+.s1 { color: #bcbec4;}
+.s2 { color: #bcbec4;}
+.s3 { color: #6aab73;}
+.s4 { color: #2aacb8;}
+.s5 { color: #7a7e85;}
+</style>
+</head>
+<body bgcolor="#1e1f22">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+main.py</font>
+</center></td></tr></table>
+<pre><span class="s0">from </span><span class="s1">re </span><span class="s0">import </span><span class="s1">search</span>
+
+<span class="s0">import </span><span class="s1">psutil</span>
+<span class="s0">import </span><span class="s1">pyautogui</span>
+<span class="s0">import </span><span class="s1">pyttsx3</span>
+<span class="s0">import </span><span class="s1">kit</span>
+<span class="s0">import </span><span class="s1">subprocess</span>
+<span class="s0">import </span><span class="s1">pywhatkit</span>
+<span class="s0">import </span><span class="s1">speech_recognition </span><span class="s0">as </span><span class="s1">sr</span>
+<span class="s0">import </span><span class="s1">win32com</span><span class="s2">.</span><span class="s1">client</span>
+<span class="s0">import </span><span class="s1">webbrowser</span>
+<span class="s0">import </span><span class="s1">datetime</span>
+<span class="s0">import </span><span class="s1">wikipedia</span>
+<span class="s0">import </span><span class="s1">os</span>
+<span class="s0">import </span><span class="s1">urllib</span><span class="s2">.</span><span class="s1">parse</span>
+
+<span class="s0">from </span><span class="s1">click </span><span class="s0">import </span><span class="s1">command</span>
+
+
+<span class="s0">def </span><span class="s1">say</span><span class="s2">(</span><span class="s1">text</span><span class="s2">, </span><span class="s1">voice</span><span class="s2">=</span><span class="s0">None</span><span class="s2">):</span>
+    <span class="s1">speaker </span><span class="s2">= </span><span class="s1">win32com</span><span class="s2">.</span><span class="s1">client</span><span class="s2">.</span><span class="s1">Dispatch</span><span class="s2">(</span><span class="s3">&quot;SAPI.SpVoice&quot;</span><span class="s2">)</span>
+    <span class="s0">if </span><span class="s1">voice</span><span class="s2">:</span>
+        <span class="s0">try</span><span class="s2">:</span>
+            <span class="s1">voices </span><span class="s2">= </span><span class="s1">speaker</span><span class="s2">.</span><span class="s1">GetVoices</span><span class="s2">()</span>
+            <span class="s0">for </span><span class="s1">v </span><span class="s0">in </span><span class="s1">voices</span><span class="s2">:</span>
+                <span class="s0">if </span><span class="s1">v</span><span class="s2">.</span><span class="s1">GetDescription</span><span class="s2">().</span><span class="s1">strip</span><span class="s2">() == </span><span class="s1">voice</span><span class="s2">.</span><span class="s1">strip</span><span class="s2">():</span>
+                    <span class="s1">speaker</span><span class="s2">.</span><span class="s1">Voice </span><span class="s2">= </span><span class="s1">v</span>
+                    <span class="s0">break</span>
+        <span class="s0">except</span><span class="s2">:</span>
+            <span class="s1">print</span><span class="s2">(</span><span class="s3">f&quot;Voice '</span><span class="s0">{</span><span class="s1">voice</span><span class="s0">}</span><span class="s3">' not found. Using the default voice.&quot;</span><span class="s2">)</span>
+    <span class="s1">speaker</span><span class="s2">.</span><span class="s1">Speak</span><span class="s2">(</span><span class="s1">text</span><span class="s2">)</span>
+
+<span class="s0">def </span><span class="s1">takeCommand</span><span class="s2">():</span>
+    <span class="s1">r </span><span class="s2">= </span><span class="s1">sr</span><span class="s2">.</span><span class="s1">Recognizer</span><span class="s2">()</span>
+    <span class="s0">with </span><span class="s1">sr</span><span class="s2">.</span><span class="s1">Microphone</span><span class="s2">() </span><span class="s0">as </span><span class="s1">source</span><span class="s2">:</span>
+        <span class="s1">print</span><span class="s2">(</span><span class="s3">&quot;Listening...&quot;</span><span class="s2">)</span>
+        <span class="s1">r</span><span class="s2">.</span><span class="s1">pause_threshold </span><span class="s2">= </span><span class="s4">1</span>
+        <span class="s1">audio </span><span class="s2">= </span><span class="s1">r</span><span class="s2">.</span><span class="s1">listen</span><span class="s2">(</span><span class="s1">source</span><span class="s2">)</span>
+    <span class="s0">try</span><span class="s2">:</span>
+        <span class="s1">print</span><span class="s2">(</span><span class="s3">&quot;Recognizing...&quot;</span><span class="s2">)</span>
+        <span class="s1">query </span><span class="s2">= </span><span class="s1">r</span><span class="s2">.</span><span class="s1">recognize_google</span><span class="s2">(</span><span class="s1">audio</span><span class="s2">, </span><span class="s1">language</span><span class="s2">=</span><span class="s3">&quot;en-in&quot;</span><span class="s2">)</span>
+        <span class="s1">print</span><span class="s2">(</span><span class="s3">f&quot;User said: </span><span class="s0">{</span><span class="s1">query</span><span class="s0">}\n</span><span class="s3">&quot;</span><span class="s2">)</span>
+    <span class="s0">except </span><span class="s1">Exception </span><span class="s0">as </span><span class="s1">e</span><span class="s2">:</span>
+        <span class="s1">print</span><span class="s2">(</span><span class="s3">&quot;Could not understand audio, please try again...&quot;</span><span class="s2">)</span>
+        <span class="s0">return None</span>
+    <span class="s0">return </span><span class="s1">query</span>
+
+<span class="s1">say</span><span class="s2">(</span><span class="s3">&quot;Sara HERE !!&quot;</span><span class="s2">, </span><span class="s1">voice</span><span class="s2">=</span><span class="s3">&quot;Microsoft Zira Desktop - English (United States)&quot;</span><span class="s2">)</span>
+
+<span class="s0">def </span><span class="s1">search_on_google</span><span class="s2">(</span><span class="s1">query</span><span class="s2">):</span>
+    <span class="s0">try</span><span class="s2">:</span>
+        <span class="s1">encoded_query </span><span class="s2">= </span><span class="s1">urllib</span><span class="s2">.</span><span class="s1">parse</span><span class="s2">.</span><span class="s1">quote</span><span class="s2">(</span><span class="s1">query</span><span class="s2">)  </span><span class="s5"># Encode query for URL</span>
+        <span class="s1">url </span><span class="s2">= </span><span class="s3">f&quot;https://www.google.com/search?q=</span><span class="s0">{</span><span class="s1">encoded_query</span><span class="s0">}</span><span class="s3">&quot;</span>
+        <span class="s1">webbrowser</span><span class="s2">.</span><span class="s1">open</span><span class="s2">(</span><span class="s1">url</span><span class="s2">)</span>
+        <span class="s1">say</span><span class="s2">(</span><span class="s3">f&quot;Here are the results for </span><span class="s0">{</span><span class="s1">query</span><span class="s0">}</span><span class="s3">&quot;</span><span class="s2">)</span>
+    <span class="s0">except </span><span class="s1">Exception </span><span class="s0">as </span><span class="s1">e</span><span class="s2">:</span>
+        <span class="s1">print</span><span class="s2">(</span><span class="s3">f&quot;Error opening Google search: </span><span class="s0">{</span><span class="s1">e</span><span class="s0">}</span><span class="s3">&quot;</span><span class="s2">)</span>
+        <span class="s1">say</span><span class="s2">(</span><span class="s3">&quot;Sorry, I couldn't open the Google search.&quot;</span><span class="s2">)</span>
+
+<span class="s5"># Move the close_application function outside of any blocks</span>
+<span class="s0">def </span><span class="s1">close_application</span><span class="s2">(</span><span class="s1">app_name</span><span class="s2">):</span>
+    <span class="s0">try</span><span class="s2">:</span>
+        <span class="s0">if </span><span class="s3">&quot;word&quot; </span><span class="s0">in </span><span class="s1">app_name</span><span class="s2">.</span><span class="s1">lower</span><span class="s2">():</span>
+            <span class="s1">os</span><span class="s2">.</span><span class="s1">system</span><span class="s2">(</span><span class="s3">&quot;taskkill /f /im WINWORD.EXE&quot;</span><span class="s2">)</span>
+            <span class="s1">say</span><span class="s2">(</span><span class="s3">&quot;Closing Microsoft Word&quot;</span><span class="s2">, </span><span class="s1">voice</span><span class="s2">=</span><span class="s3">&quot;Microsoft Zira Desktop - English (United States)&quot;</span><span class="s2">)</span>
+
+        <span class="s0">elif </span><span class="s3">&quot;vs code&quot; </span><span class="s0">in </span><span class="s1">app_name</span><span class="s2">.</span><span class="s1">lower</span><span class="s2">() </span><span class="s0">or </span><span class="s3">&quot;visual studio code&quot; </span><span class="s0">in </span><span class="s1">app_name</span><span class="s2">.</span><span class="s1">lower</span><span class="s2">():</span>
+            <span class="s5"># Try closing both 'Code.exe' and 'code.exe' in case of different process names</span>
+            <span class="s1">os</span><span class="s2">.</span><span class="s1">system</span><span class="s2">(</span><span class="s3">&quot;taskkill /f /im Code.exe&quot;</span><span class="s2">)</span>
+            <span class="s1">os</span><span class="s2">.</span><span class="s1">system</span><span class="s2">(</span><span class="s3">&quot;taskkill /f /im code.exe&quot;</span><span class="s2">)</span>
+            <span class="s1">say</span><span class="s2">(</span><span class="s3">&quot;Closing Visual Studio Code&quot;</span><span class="s2">, </span><span class="s1">voice</span><span class="s2">=</span><span class="s3">&quot;Microsoft Zira Desktop - English (United States)&quot;</span><span class="s2">)</span>
+
+        <span class="s0">elif </span><span class="s3">&quot;powerpoint&quot; </span><span class="s0">in </span><span class="s1">app_name</span><span class="s2">.</span><span class="s1">lower</span><span class="s2">():</span>
+            <span class="s1">os</span><span class="s2">.</span><span class="s1">system</span><span class="s2">(</span><span class="s3">&quot;taskkill /f /im POWERPNT.EXE&quot;</span><span class="s2">)</span>
+            <span class="s1">say</span><span class="s2">(</span><span class="s3">&quot;Closing Microsoft PowerPoint&quot;</span><span class="s2">, </span><span class="s1">voice</span><span class="s2">=</span><span class="s3">&quot;Microsoft Zira Desktop - English (United States)&quot;</span><span class="s2">)</span>
+
+        <span class="s0">elif </span><span class="s3">&quot;command prompt&quot; </span><span class="s0">in </span><span class="s1">app_name</span><span class="s2">.</span><span class="s1">lower</span><span class="s2">() </span><span class="s0">or </span><span class="s3">&quot;cmd&quot; </span><span class="s0">in </span><span class="s1">app_name</span><span class="s2">.</span><span class="s1">lower</span><span class="s2">():</span>
+            <span class="s1">os</span><span class="s2">.</span><span class="s1">system</span><span class="s2">(</span><span class="s3">&quot;taskkill /f /im cmd.exe&quot;</span><span class="s2">)</span>
+            <span class="s1">say</span><span class="s2">(</span><span class="s3">&quot;Closing Command Prompt&quot;</span><span class="s2">, </span><span class="s1">voice</span><span class="s2">=</span><span class="s3">&quot;Microsoft Zira Desktop - English (United States)&quot;</span><span class="s2">)</span>
+
+        <span class="s0">elif </span><span class="s3">&quot;brave&quot; </span><span class="s0">in </span><span class="s1">app_name</span><span class="s2">.</span><span class="s1">lower</span><span class="s2">():</span>
+            <span class="s1">os</span><span class="s2">.</span><span class="s1">system</span><span class="s2">(</span><span class="s3">&quot;taskkill /f /im brave.exe&quot;</span><span class="s2">)</span>
+            <span class="s1">say</span><span class="s2">(</span><span class="s3">&quot;Closing Brave&quot;</span><span class="s2">, </span><span class="s1">voice</span><span class="s2">=</span><span class="s3">&quot;Microsoft Zira Desktop - English (United States)&quot;</span><span class="s2">)</span>
+
+        <span class="s0">elif </span><span class="s3">&quot;chrome&quot; </span><span class="s0">in </span><span class="s1">app_name</span><span class="s2">.</span><span class="s1">lower</span><span class="s2">():</span>
+            <span class="s1">os</span><span class="s2">.</span><span class="s1">system</span><span class="s2">(</span><span class="s3">&quot;taskkill /f /im chrome.exe&quot;</span><span class="s2">)</span>
+            <span class="s1">say</span><span class="s2">(</span><span class="s3">&quot;Closing Chrome&quot;</span><span class="s2">, </span><span class="s1">voice</span><span class="s2">=</span><span class="s3">&quot;Microsoft Zira Desktop - English (United States)&quot;</span><span class="s2">)</span>
+
+        <span class="s0">else</span><span class="s2">:</span>
+            <span class="s1">say</span><span class="s2">(</span><span class="s3">&quot;Sorry, I can't find that application to close.&quot;</span><span class="s2">)</span>
+    <span class="s0">except </span><span class="s1">Exception </span><span class="s0">as </span><span class="s1">e</span><span class="s2">:</span>
+        <span class="s1">say</span><span class="s2">(</span><span class="s3">f&quot;Error occurred while closing the application: </span><span class="s0">{</span><span class="s1">e</span><span class="s0">}</span><span class="s3">&quot;</span><span class="s2">)</span>
+
+<span class="s0">while True</span><span class="s2">:</span>
+    <span class="s1">text </span><span class="s2">= </span><span class="s1">takeCommand</span><span class="s2">()</span>
+    <span class="s0">if </span><span class="s1">text</span><span class="s2">:</span>
+        <span class="s0">if </span><span class="s1">text</span><span class="s2">.</span><span class="s1">lower</span><span class="s2">() == </span><span class="s3">&quot;stop&quot;</span><span class="s2">:</span>
+            <span class="s1">say</span><span class="s2">(</span><span class="s3">&quot;Stopping the program.&quot;</span><span class="s2">)</span>
+            <span class="s0">break</span>
+
+        <span class="s1">say</span><span class="s2">(</span><span class="s1">text</span><span class="s2">)</span>
+
+        <span class="s5"># Feature to open Google and search</span>
+        <span class="s0">if </span><span class="s3">&quot;open google&quot; </span><span class="s0">in </span><span class="s1">text</span><span class="s2">.</span><span class="s1">lower</span><span class="s2">():</span>
+            <span class="s1">say</span><span class="s2">(</span><span class="s3">&quot;What would you like to search on Google?&quot;</span><span class="s2">)</span>
+            <span class="s1">search_query </span><span class="s2">= </span><span class="s1">takeCommand</span><span class="s2">()</span>
+            <span class="s0">if </span><span class="s1">search_query</span><span class="s2">:</span>
+                <span class="s1">search_on_google</span><span class="s2">(</span><span class="s1">search_query</span><span class="s2">)</span>
+            <span class="s0">else</span><span class="s2">:</span>
+                <span class="s1">say</span><span class="s2">(</span><span class="s3">&quot;Sorry, I didn't catch that. Please try again.&quot;</span><span class="s2">)</span>
+
+        <span class="s5"># Feature to open specific websites</span>
+        <span class="s1">sites </span><span class="s2">= [</span>
+            <span class="s2">[</span><span class="s3">&quot;YouTube&quot;</span><span class="s2">, </span><span class="s3">&quot;https://youtube.com&quot;</span><span class="s2">],</span>
+            <span class="s2">[</span><span class="s3">&quot;Browser&quot;</span><span class="s2">, </span><span class="s3">&quot;https://google.com&quot;</span><span class="s2">],</span>
+            <span class="s2">[</span><span class="s3">&quot;abc&quot;</span><span class="s2">, </span><span class="s3">&quot;https://wikipedia.com&quot;</span><span class="s2">],</span>
+            <span class="s2">[</span><span class="s3">&quot;Microsoft edge&quot;</span><span class="s2">, </span><span class="s3">&quot;https://www.msn.com/en-in/feed&quot;</span><span class="s2">],</span>
+            <span class="s2">[</span><span class="s3">&quot;Google Map&quot;</span><span class="s2">, </span><span class="s3">&quot;https://www.google.com/maps/@18.5597952,73.8394112,12z?entry=ttu&quot;</span><span class="s2">],</span>
+            <span class="s2">[</span><span class="s3">&quot;chat gpt&quot;</span><span class="s2">, </span><span class="s3">&quot;https://chat.openai.com&quot;</span><span class="s2">],</span>
+        <span class="s2">]</span>
+
+        <span class="s0">for </span><span class="s1">site </span><span class="s0">in </span><span class="s1">sites</span><span class="s2">:</span>
+            <span class="s0">if </span><span class="s3">f&quot;open </span><span class="s0">{</span><span class="s1">site</span><span class="s2">[</span><span class="s4">0</span><span class="s2">]</span><span class="s0">}</span><span class="s3">&quot;</span><span class="s2">.</span><span class="s1">lower</span><span class="s2">() </span><span class="s0">in </span><span class="s1">text</span><span class="s2">.</span><span class="s1">lower</span><span class="s2">():</span>
+                <span class="s1">say</span><span class="s2">(</span><span class="s3">f&quot;Opening </span><span class="s0">{</span><span class="s1">site</span><span class="s2">[</span><span class="s4">0</span><span class="s2">]</span><span class="s0">} </span><span class="s3">sir..&quot;</span><span class="s2">, </span><span class="s1">voice</span><span class="s2">=</span><span class="s3">&quot;Microsoft Zira Desktop - English (United States)&quot;</span><span class="s2">)</span>
+                <span class="s1">webbrowser</span><span class="s2">.</span><span class="s1">open</span><span class="s2">(</span><span class="s1">site</span><span class="s2">[</span><span class="s4">1</span><span class="s2">])</span>
+
+        <span class="s5"># Feature to play music</span>
+        <span class="s0">if </span><span class="s3">&quot;play music&quot; </span><span class="s0">in </span><span class="s1">text</span><span class="s2">.</span><span class="s1">lower</span><span class="s2">():</span>
+            <span class="s1">music_dir </span><span class="s2">= </span><span class="s3">&quot;C:</span><span class="s0">\\</span><span class="s3">Users</span><span class="s0">\\</span><span class="s3">harsh</span><span class="s0">\\</span><span class="s3">OneDrive</span><span class="s0">\\</span><span class="s3">Documents</span><span class="s0">\\</span><span class="s3">music&quot;</span>
+            <span class="s1">songs </span><span class="s2">= </span><span class="s1">os</span><span class="s2">.</span><span class="s1">listdir</span><span class="s2">(</span><span class="s1">music_dir</span><span class="s2">)</span>
+            <span class="s1">os</span><span class="s2">.</span><span class="s1">startfile</span><span class="s2">(</span><span class="s1">os</span><span class="s2">.</span><span class="s1">path</span><span class="s2">.</span><span class="s1">join</span><span class="s2">(</span><span class="s1">music_dir</span><span class="s2">, </span><span class="s1">songs</span><span class="s2">[</span><span class="s4">0</span><span class="s2">]))</span>
+
+        <span class="s0">elif </span><span class="s3">'open' </span><span class="s0">in </span><span class="s1">text</span><span class="s2">.</span><span class="s1">lower</span><span class="s2">() </span><span class="s0">and </span><span class="s3">'website' </span><span class="s0">in </span><span class="s1">text</span><span class="s2">.</span><span class="s1">lower</span><span class="s2">():</span>
+            <span class="s1">say</span><span class="s2">(</span><span class="s3">'Which website would you like to open?'</span><span class="s2">)</span>
+            <span class="s1">website </span><span class="s2">= </span><span class="s1">takeCommand</span><span class="s2">()</span>
+            <span class="s1">webbrowser</span><span class="s2">.</span><span class="s1">open</span><span class="s2">(</span><span class="s3">f&quot;https://</span><span class="s0">{</span><span class="s1">website</span><span class="s0">}</span><span class="s3">&quot;</span><span class="s2">)</span>
+            <span class="s1">say</span><span class="s2">(</span><span class="s3">f&quot;Opening </span><span class="s0">{</span><span class="s1">website</span><span class="s0">}</span><span class="s3">&quot;</span><span class="s2">)</span>
+
+        <span class="s5"># Feature for time</span>
+        <span class="s0">if </span><span class="s3">&quot;the time&quot; </span><span class="s0">in </span><span class="s1">text</span><span class="s2">.</span><span class="s1">lower</span><span class="s2">():</span>
+            <span class="s1">hour </span><span class="s2">= </span><span class="s1">datetime</span><span class="s2">.</span><span class="s1">datetime</span><span class="s2">.</span><span class="s1">now</span><span class="s2">().</span><span class="s1">strftime</span><span class="s2">(</span><span class="s3">&quot;%H&quot;</span><span class="s2">)</span>
+            <span class="s1">min </span><span class="s2">= </span><span class="s1">datetime</span><span class="s2">.</span><span class="s1">datetime</span><span class="s2">.</span><span class="s1">now</span><span class="s2">().</span><span class="s1">strftime</span><span class="s2">(</span><span class="s3">&quot;%M&quot;</span><span class="s2">)</span>
+            <span class="s1">say</span><span class="s2">(</span><span class="s3">f&quot;Time is </span><span class="s0">{</span><span class="s1">hour</span><span class="s0">} </span><span class="s3">hours and </span><span class="s0">{</span><span class="s1">min</span><span class="s0">} </span><span class="s3">minutes&quot;</span><span class="s2">)</span>
+
+        <span class="s5"># Feature for playing YouTube videos</span>
+        <span class="s0">if </span><span class="s3">&quot;play youtube&quot; </span><span class="s0">in </span><span class="s1">text</span><span class="s2">.</span><span class="s1">lower</span><span class="s2">():</span>
+            <span class="s1">say</span><span class="s2">(</span><span class="s3">&quot;What would you like to search on YouTube?&quot;</span><span class="s2">, </span><span class="s1">voice</span><span class="s2">=</span><span class="s3">&quot;Microsoft Zira Desktop - English (United States)&quot;</span><span class="s2">)</span>
+            <span class="s1">search_query </span><span class="s2">= </span><span class="s1">takeCommand</span><span class="s2">()</span>
+            <span class="s0">if </span><span class="s1">search_query</span><span class="s2">:</span>
+                <span class="s1">say</span><span class="s2">(</span><span class="s3">f&quot;Searching YouTube for </span><span class="s0">{</span><span class="s1">search_query</span><span class="s0">}</span><span class="s3">&quot;</span><span class="s2">, </span><span class="s1">voice</span><span class="s2">=</span><span class="s3">&quot;Microsoft Zira Desktop - English (United States)&quot;</span><span class="s2">)</span>
+                <span class="s1">pywhatkit</span><span class="s2">.</span><span class="s1">playonyt</span><span class="s2">(</span><span class="s1">search_query</span><span class="s2">)</span>
+                <span class="s1">say</span><span class="s2">(</span><span class="s3">&quot;Done, sir&quot;</span><span class="s2">)</span>
+
+        <span class="s0">if </span><span class="s3">&quot;information&quot; </span><span class="s0">in </span><span class="s1">text</span><span class="s2">.</span><span class="s1">lower</span><span class="s2">():</span>
+            <span class="s1">say</span><span class="s2">(</span><span class="s3">&quot;Searching sir&quot;</span><span class="s2">)</span>
+            <span class="s1">text </span><span class="s2">= </span><span class="s1">text</span><span class="s2">.</span><span class="s1">replace</span><span class="s2">(</span><span class="s3">&quot;wikipedia&quot;</span><span class="s2">, </span><span class="s3">&quot;&quot;</span><span class="s2">)</span>
+            <span class="s1">results </span><span class="s2">= </span><span class="s1">wikipedia</span><span class="s2">.</span><span class="s1">summary</span><span class="s2">(</span><span class="s1">text</span><span class="s2">, </span><span class="s1">sentences</span><span class="s2">=</span><span class="s4">3</span><span class="s2">)</span>
+            <span class="s1">say</span><span class="s2">(</span><span class="s3">&quot;According to Wikipedia&quot;</span><span class="s2">)</span>
+            <span class="s1">print</span><span class="s2">(</span><span class="s1">results</span><span class="s2">)</span>
+            <span class="s1">say</span><span class="s2">(</span><span class="s1">results</span><span class="s2">)</span>
+
+        <span class="s0">elif </span><span class="s3">'battery' </span><span class="s0">in </span><span class="s1">text</span><span class="s2">.</span><span class="s1">lower</span><span class="s2">():</span>
+            <span class="s1">battery </span><span class="s2">= </span><span class="s1">psutil</span><span class="s2">.</span><span class="s1">sensors_battery</span><span class="s2">()</span>
+            <span class="s1">percent </span><span class="s2">= </span><span class="s1">battery</span><span class="s2">.</span><span class="s1">percent</span>
+            <span class="s1">say</span><span class="s2">(</span><span class="s3">f&quot;Your system is at </span><span class="s0">{</span><span class="s1">percent</span><span class="s0">} </span><span class="s3">percent battery.&quot;</span><span class="s2">)</span>
+
+        <span class="s0">elif </span><span class="s3">'cpu' </span><span class="s0">in </span><span class="s1">text</span><span class="s2">.</span><span class="s1">lower</span><span class="s2">():</span>
+            <span class="s1">usage </span><span class="s2">= </span><span class="s1">psutil</span><span class="s2">.</span><span class="s1">cpu_percent</span><span class="s2">(</span><span class="s1">interval</span><span class="s2">=</span><span class="s4">1</span><span class="s2">)</span>
+            <span class="s1">say</span><span class="s2">(</span><span class="s3">f&quot;CPU is at </span><span class="s0">{</span><span class="s1">usage</span><span class="s0">} </span><span class="s3">percent usage.&quot;</span><span class="s2">)</span>
+
+
+
+        <span class="s5"># Feature to take a note</span>
+        <span class="s0">if </span><span class="s3">&quot;take a note&quot; </span><span class="s0">in </span><span class="s1">text</span><span class="s2">.</span><span class="s1">lower</span><span class="s2">():</span>
+            <span class="s1">say</span><span class="s2">(</span><span class="s3">&quot;What should I note down?&quot;</span><span class="s2">)</span>
+            <span class="s1">note </span><span class="s2">= </span><span class="s1">takeCommand</span><span class="s2">().</span><span class="s1">lower</span><span class="s2">()</span>
+            <span class="s0">with </span><span class="s1">open</span><span class="s2">(</span><span class="s3">&quot;notes.txt&quot;</span><span class="s2">, </span><span class="s3">&quot;a&quot;</span><span class="s2">) </span><span class="s0">as </span><span class="s1">f</span><span class="s2">:</span>
+                <span class="s1">f</span><span class="s2">.</span><span class="s1">write</span><span class="s2">(</span><span class="s1">note </span><span class="s2">+ </span><span class="s3">&quot;</span><span class="s0">\n</span><span class="s3">&quot;</span><span class="s2">)</span>
+            <span class="s1">say</span><span class="s2">(</span><span class="s3">&quot;Note added successfully.&quot;</span><span class="s2">)</span>
+
+        <span class="s5"># Feature to launch applications</span>
+        <span class="s0">if </span><span class="s3">&quot;launch&quot; </span><span class="s0">in </span><span class="s1">text</span><span class="s2">.</span><span class="s1">lower</span><span class="s2">():</span>
+            <span class="s0">if </span><span class="s3">&quot;word&quot; </span><span class="s0">in </span><span class="s1">text</span><span class="s2">.</span><span class="s1">lower</span><span class="s2">():</span>
+                <span class="s1">say</span><span class="s2">(</span><span class="s3">&quot;Launching Microsoft Word&quot;</span><span class="s2">, </span><span class="s1">voice</span><span class="s2">=</span><span class="s3">&quot;Microsoft Zira Desktop - English (United States)&quot;</span><span class="s2">)</span>
+                <span class="s1">os</span><span class="s2">.</span><span class="s1">startfile</span><span class="s2">(</span><span class="s3">&quot;C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Word.lnk&quot;</span><span class="s2">)  </span><span class="s5"># Modify the path if needed</span>
+
+            <span class="s0">elif </span><span class="s3">&quot;vs code&quot; </span><span class="s0">in </span><span class="s1">text</span><span class="s2">.</span><span class="s1">lower</span><span class="s2">() </span><span class="s0">or </span><span class="s3">&quot;visual studio code&quot; </span><span class="s0">in </span><span class="s1">text</span><span class="s2">.</span><span class="s1">lower</span><span class="s2">():</span>
+                <span class="s1">say</span><span class="s2">(</span><span class="s3">&quot;Launching Visual Studio Code&quot;</span><span class="s2">, </span><span class="s1">voice</span><span class="s2">=</span><span class="s3">&quot;Microsoft Zira Desktop - English (United States)&quot;</span><span class="s2">)</span>
+                <span class="s1">os</span><span class="s2">.</span><span class="s1">startfile</span><span class="s2">(</span><span class="s3">&quot;C:</span><span class="s0">\\</span><span class="s3">Users</span><span class="s0">\\</span><span class="s3">harsh</span><span class="s0">\\</span><span class="s3">OneDrive</span><span class="s0">\\</span><span class="s3">Desktop</span><span class="s0">\\</span><span class="s3">Visual Studio Cbnode.lnk&quot;</span><span class="s2">)  </span><span class="s5"># Modify path as needed</span>
+
+            <span class="s0">elif </span><span class="s3">&quot;powerpoint&quot; </span><span class="s0">in </span><span class="s1">text</span><span class="s2">.</span><span class="s1">lower</span><span class="s2">():</span>
+                <span class="s1">say</span><span class="s2">(</span><span class="s3">&quot;Launching Microsoft PowerPoint&quot;</span><span class="s2">, </span><span class="s1">voice</span><span class="s2">=</span><span class="s3">&quot;Microsoft Zira Desktop - English (United States)&quot;</span><span class="s2">)</span>
+                <span class="s1">os</span><span class="s2">.</span><span class="s1">startfile</span><span class="s2">(</span><span class="s3">&quot;C:\ProgramData\Microsoft\Windows\Start Menu\Programs\PowerPoint.lnk&quot;</span><span class="s2">)</span>
+
+            <span class="s0">elif </span><span class="s3">&quot;command prompt&quot; </span><span class="s0">in </span><span class="s1">text</span><span class="s2">.</span><span class="s1">lower</span><span class="s2">() </span><span class="s0">or </span><span class="s3">&quot;cmd&quot; </span><span class="s0">in </span><span class="s1">text</span><span class="s2">.</span><span class="s1">lower</span><span class="s2">():</span>
+                <span class="s1">say</span><span class="s2">(</span><span class="s3">&quot;Launching Command Prompt&quot;</span><span class="s2">, </span><span class="s1">voice</span><span class="s2">=</span><span class="s3">&quot;Microsoft Zira Desktop - English (United States)&quot;</span><span class="s2">)</span>
+                <span class="s1">subprocess</span><span class="s2">.</span><span class="s1">Popen</span><span class="s2">(</span><span class="s3">&quot;cmd.exe&quot;</span><span class="s2">)</span>
+
+            <span class="s0">elif </span><span class="s3">&quot;brave&quot; </span><span class="s0">in </span><span class="s1">text</span><span class="s2">.</span><span class="s1">lower</span><span class="s2">():</span>
+                <span class="s1">say</span><span class="s2">(</span><span class="s3">&quot;Launching Brave&quot;</span><span class="s2">, </span><span class="s1">voice</span><span class="s2">=</span><span class="s3">&quot;Microsoft Zira Desktop - English (United States)&quot;</span><span class="s2">)</span>
+                <span class="s1">os</span><span class="s2">.</span><span class="s1">startfile</span><span class="s2">(</span><span class="s3">&quot;C:</span><span class="s0">\\</span><span class="s3">Users</span><span class="s0">\\</span><span class="s3">Public</span><span class="s0">\\</span><span class="s3">Desktop</span><span class="s0">\\</span><span class="s3">Brave.lnk&quot;</span><span class="s2">)</span>
+
+            <span class="s0">elif </span><span class="s3">&quot;chrome&quot; </span><span class="s0">in </span><span class="s1">text</span><span class="s2">.</span><span class="s1">lower</span><span class="s2">():</span>
+                <span class="s1">say</span><span class="s2">(</span><span class="s3">&quot;Launching Chrome&quot;</span><span class="s2">, </span><span class="s1">voice</span><span class="s2">=</span><span class="s3">&quot;Microsoft Zira Desktop - English (United States)&quot;</span><span class="s2">)</span>
+                <span class="s1">os</span><span class="s2">.</span><span class="s1">startfile</span><span class="s2">(</span><span class="s3">&quot;C:</span><span class="s0">\\</span><span class="s3">Users</span><span class="s0">\\</span><span class="s3">harsh</span><span class="s0">\\</span><span class="s3">OneDrive</span><span class="s0">\\</span><span class="s3">Desktop</span><span class="s0">\\</span><span class="s3">Person 1 - Chrome.lnk&quot;</span><span class="s2">)</span>
+
+            <span class="s0">else</span><span class="s2">:</span>
+                <span class="s1">say</span><span class="s2">(</span><span class="s3">&quot;Sorry, I can't find that application.&quot;</span><span class="s2">)</span>
+
+        <span class="s5"># Feature to close applications</span>
+        <span class="s0">if </span><span class="s3">&quot;close&quot; </span><span class="s0">in </span><span class="s1">text</span><span class="s2">.</span><span class="s1">lower</span><span class="s2">():</span>
+            <span class="s5"># You can either extract the app name from the text or ask the user</span>
+            <span class="s5"># For simplicity, let's extract it from the text</span>
+            <span class="s1">app_name </span><span class="s2">= </span><span class="s1">text</span><span class="s2">.</span><span class="s1">lower</span><span class="s2">().</span><span class="s1">replace</span><span class="s2">(</span><span class="s3">&quot;close&quot;</span><span class="s2">, </span><span class="s3">&quot;&quot;</span><span class="s2">).</span><span class="s1">strip</span><span class="s2">()</span>
+            <span class="s0">if </span><span class="s1">app_name</span><span class="s2">:</span>
+                <span class="s1">close_application</span><span class="s2">(</span><span class="s1">app_name</span><span class="s2">)</span>
+            <span class="s0">else</span><span class="s2">:</span>
+                <span class="s1">say</span><span class="s2">(</span><span class="s3">&quot;Which application would you like to close?&quot;</span><span class="s2">)</span>
+                <span class="s1">app_name </span><span class="s2">= </span><span class="s1">takeCommand</span><span class="s2">()</span>
+                <span class="s0">if </span><span class="s1">app_name</span><span class="s2">:</span>
+                    <span class="s1">close_application</span><span class="s2">(</span><span class="s1">app_name</span><span class="s2">)</span>
+                <span class="s0">else</span><span class="s2">:</span>
+                    <span class="s1">say</span><span class="s2">(</span><span class="s3">&quot;Sorry, I didn't catch that.&quot;</span><span class="s2">)</span>
+
+
+
+
+
+<span class="s5"># from re import search</span>
+<span class="s5"># import pyautogui</span>
+<span class="s5"># import pyttsx3</span>
+<span class="s5"># import subprocess</span>
+<span class="s5"># import psutil</span>
+<span class="s5"># import pywhatkit</span>
+<span class="s5"># import speech_recognition as sr</span>
+<span class="s5"># import win32com.client</span>
+<span class="s5"># import webbrowser</span>
+<span class="s5"># import datetime</span>
+<span class="s5"># import wikipedia</span>
+<span class="s5"># import os</span>
+<span class="s5"># import urllib.parse</span>
+<span class="s5"># from mtranslate import translate  # Import translation library</span>
+<span class="s5"># from colorama import Fore, Style, init</span>
+<span class="s5"># import threading</span>
+<span class="s5">#</span>
+<span class="s5"># init(autoreset=True)</span>
+<span class="s5">#</span>
+<span class="s5">#</span>
+<span class="s5"># def say(text, voice=&quot;Microsoft Zira Desktop - English (United States)&quot;):</span>
+<span class="s5">#     speaker = win32com.client.Dispatch(&quot;SAPI.SpVoice&quot;)</span>
+<span class="s5">#     try:</span>
+<span class="s5">#         voices = speaker.GetVoices()</span>
+<span class="s5">#         for v in voices:</span>
+<span class="s5">#             if v.GetDescription().strip() == voice.strip():</span>
+<span class="s5">#                 speaker.Voice = v</span>
+<span class="s5">#                 break</span>
+<span class="s5">#     except:</span>
+<span class="s5">#         print(f&quot;Voice '{voice}' not found. Using the default voice.&quot;)</span>
+<span class="s5">#     speaker.Speak(text)</span>
+<span class="s5">#</span>
+<span class="s5">#</span>
+<span class="s5"># # Example usage:</span>
+<span class="s5"># say(&quot;Sara HERE !!&quot;)</span>
+<span class="s5">#</span>
+<span class="s5">#</span>
+<span class="s5"># def takeCommand():</span>
+<span class="s5">#     r = sr.Recognizer()</span>
+<span class="s5">#     with sr.Microphone() as source:</span>
+<span class="s5">#         print(&quot;Listening...&quot;)</span>
+<span class="s5">#         r.pause_threshold = 1</span>
+<span class="s5">#         audio = r.listen(source)</span>
+<span class="s5">#     try:</span>
+<span class="s5">#         print(&quot;Recognizing...&quot;)</span>
+<span class="s5">#         query = r.recognize_google(audio, language=&quot;en-in&quot;)</span>
+<span class="s5">#         print(f&quot;User said: {query}\n&quot;)</span>
+<span class="s5">#     except Exception as e:</span>
+<span class="s5">#         print(&quot;Could not understand audio, please try again...&quot;)</span>
+<span class="s5">#         return None</span>
+<span class="s5">#     return query</span>
+<span class="s5">#</span>
+<span class="s5">#</span>
+<span class="s5"># # Function to translate Hindi to English</span>
+<span class="s5"># def Translate_hindi_to_english(text):</span>
+<span class="s5">#     english_text = translate(text, &quot;en-us&quot;)</span>
+<span class="s5">#     return english_text</span>
+<span class="s5">#</span>
+<span class="s5">#</span>
+<span class="s5"># # Function to search on Google</span>
+<span class="s5"># def search_on_google(query):</span>
+<span class="s5">#     try:</span>
+<span class="s5">#         encoded_query = urllib.parse.quote(query)  # Encode query for URL</span>
+<span class="s5">#         url = f&quot;https://www.google.com/search?q={encoded_query}&quot;</span>
+<span class="s5">#         webbrowser.open(url)</span>
+<span class="s5">#         say(f&quot;Here are the results for {query}&quot;, voice=&quot;Microsoft Zira Desktop - English (United States)&quot;)</span>
+<span class="s5">#     except Exception as e:</span>
+<span class="s5">#         print(f&quot;Error opening Google search: {e}&quot;)</span>
+<span class="s5">#         say(&quot;Sorry, I couldn't open the Google search.&quot;, voice=&quot;Microsoft Zira Desktop - English (United States)&quot;)</span>
+<span class="s5">#</span>
+<span class="s5">#</span>
+<span class="s5"># def list_running_processes():</span>
+<span class="s5">#     for proc in psutil.process_iter(['pid', 'name']):</span>
+<span class="s5">#         try:</span>
+<span class="s5">#             process_name = proc.info['name']</span>
+<span class="s5">#             if 'code' in process_name.lower():</span>
+<span class="s5">#                 print(f&quot;Process Name: {process_name}, Process ID: {proc.info['pid']}&quot;)</span>
+<span class="s5">#         except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):</span>
+<span class="s5">#             pass</span>
+<span class="s5">#</span>
+<span class="s5">#</span>
+<span class="s5"># # Run this to list processes</span>
+<span class="s5"># list_running_processes()</span>
+<span class="s5">#</span>
+<span class="s5">#</span>
+<span class="s5"># # Function for speech-to-text translation</span>
+<span class="s5"># def Speech_To_Text_Python():</span>
+<span class="s5">#     recognizer = sr.Recognizer()</span>
+<span class="s5">#     recognizer.dynamic_energy_threshold = False</span>
+<span class="s5">#     recognizer.energy_threshold = 34000</span>
+<span class="s5">#     recognizer.dynamic_energy_adjustment_damping = 0.010</span>
+<span class="s5">#     recognizer.dynamic_energy_ratio = 1.000</span>
+<span class="s5">#     recognizer.pause_threshold = 0.3</span>
+<span class="s5">#     recognizer.operation_timeout = None</span>
+<span class="s5">#     recognizer.pause_threshold = 0.2</span>
+<span class="s5">#     recognizer.non_speaking_duration = 0.2</span>
+<span class="s5">#</span>
+<span class="s5">#     with sr.Microphone() as source:</span>
+<span class="s5">#         recognizer.adjust_for_ambient_noise(source)</span>
+<span class="s5">#         print(&quot;Listening....&quot;)</span>
+<span class="s5">#         try:</span>
+<span class="s5">#             audio = recognizer.listen(source, timeout=None)</span>
+<span class="s5">#             print(&quot;\rRecognizing....&quot;, end=&quot;&quot;, flush=True)</span>
+<span class="s5">#             recognizer_text = recognizer.recognize_google(audio, language=&quot;hi-IN&quot;)  # Recognizing Hindi</span>
+<span class="s5">#             if recognizer_text:</span>
+<span class="s5">#                 trans_text = Translate_hindi_to_english(recognizer_text)</span>
+<span class="s5">#                 print(&quot;\r&quot; + Fore.BLUE + &quot;SARA : &quot; + trans_text)</span>
+<span class="s5">#                 return trans_text</span>
+<span class="s5">#             else:</span>
+<span class="s5">#                 return &quot;&quot;</span>
+<span class="s5">#         except sr.UnknownValueError:</span>
+<span class="s5">#             print(&quot;\rCould not understand the audio.&quot;)</span>
+<span class="s5">#             return &quot;&quot;</span>
+<span class="s5">#         finally:</span>
+<span class="s5">#             print(&quot;\r&quot;, end=&quot;&quot;, flush=True)</span>
+<span class="s5">#</span>
+<span class="s5">#</span>
+<span class="s5"># # Function to close applications</span>
+<span class="s5"># def close_application(app_name):</span>
+<span class="s5">#     try:</span>
+<span class="s5">#         app_name = app_name.lower()</span>
+<span class="s5">#         found = False</span>
+<span class="s5">#         process_closed = False</span>
+<span class="s5">#</span>
+<span class="s5">#         # Iterate over running processes</span>
+<span class="s5">#         for proc in psutil.process_iter(['pid', 'name']):</span>
+<span class="s5">#             process_name = proc.info['name'].lower()</span>
+<span class="s5">#</span>
+<span class="s5">#             if (&quot;word&quot; in app_name and &quot;winword&quot; in process_name) or \</span>
+<span class="s5">#                     ((&quot;vs code&quot; in app_name or &quot;visual studio code&quot; in app_name) and &quot;code&quot; in process_name) or \</span>
+<span class="s5">#                     (&quot;powerpoint&quot; in app_name and &quot;powerpnt&quot; in process_name) or \</span>
+<span class="s5">#                     (&quot;command prompt&quot; in app_name or &quot;cmd&quot; in app_name and &quot;cmd&quot; in process_name) or \</span>
+<span class="s5">#                     (&quot;brave&quot; in app_name and &quot;brave&quot; in process_name) or \</span>
+<span class="s5">#                     (&quot;chrome&quot; in app_name and &quot;chrome&quot; in process_name):</span>
+<span class="s5">#                 proc.terminate()  # Terminate the process</span>
+<span class="s5">#                 say(f&quot;Closing {process_name}&quot;)</span>
+<span class="s5">#                 process_closed = True</span>
+<span class="s5">#                 found = True</span>
+<span class="s5">#</span>
+<span class="s5">#                 # Wait for the process to terminate</span>
+<span class="s5">#                 proc.wait(timeout=5)  # Wait for up to 5 seconds for termination</span>
+<span class="s5">#</span>
+<span class="s5">#         if not found:</span>
+<span class="s5">#             say(&quot;Sorry, I can't find that application to close.&quot;)</span>
+<span class="s5">#         elif not process_closed:</span>
+<span class="s5">#             say(f&quot;Could not close {app_name}. It may be already closed.&quot;)</span>
+<span class="s5">#</span>
+<span class="s5">#     except psutil.NoSuchProcess:</span>
+<span class="s5">#         say(f&quot;{app_name} process is not running.&quot;)</span>
+<span class="s5">#     except Exception as e:</span>
+<span class="s5">#         say(f&quot;Error occurred while closing the application: {e}&quot;)</span>
+<span class="s5">#</span>
+<span class="s5">#</span>
+<span class="s5"># # Main loop for assistant commands</span>
+<span class="s5"># while True:</span>
+<span class="s5">#     text = Speech_To_Text_Python()  # Now uses speech-to-text translation</span>
+<span class="s5">#     if text:</span>
+<span class="s5">#         if text.lower() == &quot;stop&quot;:</span>
+<span class="s5">#             say(&quot;Stopping the program.&quot;)</span>
+<span class="s5">#             break</span>
+<span class="s5">#</span>
+<span class="s5">#         say(text)</span>
+<span class="s5">#</span>
+<span class="s5">#         # Feature to open Google and search</span>
+<span class="s5">#         if &quot;open google&quot; in text.lower():</span>
+<span class="s5">#             say(&quot;What would you like to search on Google?&quot;)</span>
+<span class="s5">#             search_query = Speech_To_Text_Python()  # Using translated speech-to-text</span>
+<span class="s5">#             if search_query:</span>
+<span class="s5">#                 search_on_google(search_query)</span>
+<span class="s5">#             else:</span>
+<span class="s5">#                 say(&quot;Sorry, I didn't catch that. Please try again.&quot;)</span>
+<span class="s5">#</span>
+<span class="s5">#         # Feature to open specific websites</span>
+<span class="s5">#         sites = [</span>
+<span class="s5">#             [&quot;YouTube&quot;, &quot;https://youtube.com&quot;],</span>
+<span class="s5">#             [&quot;Browser&quot;, &quot;https://google.com&quot;],</span>
+<span class="s5">#             [&quot;abc&quot;, &quot;https://wikipedia.com&quot;],</span>
+<span class="s5">#             [&quot;Microsoft edge&quot;, &quot;https://www.msn.com/en-in/feed&quot;],</span>
+<span class="s5">#             [&quot;Google Map&quot;, &quot;https://www.google.com/maps/@18.5597952,73.8394112,12z?entry=ttu&quot;],</span>
+<span class="s5">#             [&quot;chat gpt&quot;, &quot;https://chat.openai.com&quot;],</span>
+<span class="s5">#         ]</span>
+<span class="s5">#</span>
+<span class="s5">#         for site in sites:</span>
+<span class="s5">#             if f&quot;open {site[0]}&quot;.lower() in text.lower():</span>
+<span class="s5">#                 say(f&quot;Opening {site[0]} sir..&quot;, voice=&quot;Microsoft Zira Desktop - English (United States)&quot;)</span>
+<span class="s5">#                 webbrowser.open(site[1])</span>
+<span class="s5">#</span>
+<span class="s5">#         # Feature to play music</span>
+<span class="s5">#         if &quot;play music&quot; in text.lower():</span>
+<span class="s5">#             music_dir = r&quot;C:\Users\harsh\OneDrive\Documents\music&quot;</span>
+<span class="s5">#             songs = os.listdir(music_dir)</span>
+<span class="s5">#             os.startfile(os.path.join(music_dir, songs[0]))</span>
+<span class="s5">#</span>
+<span class="s5">#         # Feature for time</span>
+<span class="s5">#         if &quot;the time&quot; in text.lower():</span>
+<span class="s5">#             hour = datetime.datetime.now().strftime(&quot;%H&quot;)</span>
+<span class="s5">#             min = datetime.datetime.now().strftime(&quot;%M&quot;)</span>
+<span class="s5">#             say(f&quot;Time is {hour} hours and {min} minutes&quot;)</span>
+<span class="s5">#</span>
+<span class="s5">#         # Feature for playing YouTube videos</span>
+<span class="s5">#         if &quot;play youtube&quot; in text.lower():</span>
+<span class="s5">#             say(&quot;What would you like to search on YouTube?&quot;, voice=&quot;Microsoft Zira Desktop - English (United States)&quot;)</span>
+<span class="s5">#             search_query = Speech_To_Text_Python()</span>
+<span class="s5">#             if search_query:</span>
+<span class="s5">#                 say(f&quot;Searching YouTube for {search_query}&quot;, voice=&quot;Microsoft Zira Desktop - English (United States)&quot;)</span>
+<span class="s5">#                 pywhatkit.playonyt(search_query)</span>
+<span class="s5">#                 say(&quot;Done, sir&quot;)</span>
+<span class="s5">#</span>
+<span class="s5">#         if &quot;information&quot; in text.lower():</span>
+<span class="s5">#             say(&quot;Searching sir&quot;)</span>
+<span class="s5">#             text = text.replace(&quot;wikipedia&quot;, &quot;&quot;)</span>
+<span class="s5">#             results = wikipedia.summary(text, sentences=3)</span>
+<span class="s5">#             say(&quot;According to Wikipedia&quot;)</span>
+<span class="s5">#             print(results)</span>
+<span class="s5">#             say(results)</span>
+<span class="s5">#</span>
+<span class="s5">#         # Feature to take a note</span>
+<span class="s5">#         if &quot;note&quot; in text.lower():</span>
+<span class="s5">#             say(&quot;What should I note down?&quot;)</span>
+<span class="s5">#             note = Speech_To_Text_Python().lower()</span>
+<span class="s5">#             with open(&quot;notes.txt&quot;, &quot;a&quot;) as f:</span>
+<span class="s5">#                 f.write(note + &quot;\n&quot;)</span>
+<span class="s5">#             say(&quot;Note added successfully.&quot;)</span>
+<span class="s5">#</span>
+<span class="s5">#         # Feature to launch applications</span>
+<span class="s5">#         if &quot;launch&quot; in text.lower():</span>
+<span class="s5">#             if &quot;word&quot; in text.lower():</span>
+<span class="s5">#                 say(&quot;Launching Microsoft Word&quot;, voice=&quot;Microsoft Zira Desktop - English (United States)&quot;)</span>
+<span class="s5">#                 os.startfile(r&quot;C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Word.lnk&quot;)</span>
+<span class="s5">#</span>
+<span class="s5">#             elif &quot;vs code&quot; in text.lower() or &quot;visual studio code&quot; in text.lower():</span>
+<span class="s5">#                 say(&quot;Launching Visual Studio Code&quot;, voice=&quot;Microsoft Zira Desktop - English (United States)&quot;)</span>
+<span class="s5">#                 os.startfile(</span>
+<span class="s5">#                     r&quot;C:\Users\Yash\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Visual Studio Code\Visual Studio Code.lnk&quot;)</span>
+<span class="s5">#</span>
+<span class="s5">#             elif &quot;powerpoint&quot; in text.lower():</span>
+<span class="s5">#                 say(&quot;Launching Microsoft PowerPoint&quot;, voice=&quot;Microsoft Zira Desktop - English (United States)&quot;)</span>
+<span class="s5">#                 os.startfile(r&quot;C:\ProgramData\Microsoft\Windows\Start Menu\Programs\PowerPoint.lnk&quot;)</span>
+<span class="s5">#</span>
+<span class="s5">#             elif &quot;command prompt&quot; in text.lower() or &quot;cmd&quot; in text.lower():</span>
+<span class="s5">#                 say(&quot;Launching Command Prompt&quot;, voice=&quot;Microsoft Zira Desktop - English (United States)&quot;)</span>
+<span class="s5">#                 os.system(&quot;start cmd&quot;)</span>
+<span class="s5">#</span>
+<span class="s5">#             elif &quot;brave&quot; in text.lower():</span>
+<span class="s5">#                 say(&quot;Launching Brave Browser&quot;, voice=&quot;Microsoft Zira Desktop - English (United States)&quot;)</span>
+<span class="s5">#                 os.startfile(r&quot;C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Brave.lnk&quot;)</span>
+<span class="s5">#</span>
+<span class="s5">#             elif &quot;chrome&quot; in text.lower():</span>
+<span class="s5">#                 say(&quot;Launching Google Chrome&quot;, voice=&quot;Microsoft Zira Desktop - English (United States)&quot;)</span>
+<span class="s5">#                 os.startfile(r&quot;C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Google Chrome.lnk&quot;)</span>
+<span class="s5">#</span>
+<span class="s5">#         # Feature to close applications</span>
+<span class="s5">#         if &quot;close&quot; in text.lower():</span>
+<span class="s5">#             close_application(text.lower())</span>
+</pre>
+</body>
+</html>
